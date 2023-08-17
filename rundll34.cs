@@ -13,8 +13,9 @@ namespace RunDLL34{
             else if(name == "long") name = "System.Int64";
             else if(name == "ulong") name = "System.UInt64";
             else if(name == "double") name = "System.Double";
+            else if(name == "byte") name = "System.Byte";
             else if(name == "intptr") name = "System.IntPtr";
-            else if(name == "char" || name == "byte") name = "System.Char";
+            else if(name == "char") name = "System.Char";
             else if(name == "string") name = "System.String";
             return name;
         }

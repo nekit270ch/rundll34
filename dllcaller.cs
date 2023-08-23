@@ -22,6 +22,9 @@ namespace DllCallerLib{
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetProcAddress(IntPtr module, string funcName);
 
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr GetProcAddress(IntPtr module, IntPtr funcOrdinal);
+
         private static Type CreateDelegate<T>(string[] argumentTypes){
             Type delegateReturnType = typeof(T);
 
@@ -76,7 +79,13 @@ namespace DllCallerLib{
 
         public static T CallFunction<T>(string dllName, string funcName, Argument[] args){
             IntPtr mod = LoadLibrary(dllName);
-            IntPtr fn = GetProcAddress(mod, funcName);
+            IntPtr fn = IntPtr.Zero;
+
+            if(funcName.StartsWith("#")){
+                fn = GetProcAddress(mod, new IntPtr(int.Parse(funcName.Substring(1))));
+            }else{
+                fn = GetProcAddress(mod, funcName);
+            }
 
             List<string> argTypes = new List<string>();
             List<object> argValues = new List<object>();
@@ -97,7 +106,13 @@ namespace DllCallerLib{
 
         public static object CallFunction(string dllName, string funcName, string type, Argument[] args){
             IntPtr mod = LoadLibrary(dllName);
-            IntPtr fn = GetProcAddress(mod, funcName);
+            IntPtr fn = IntPtr.Zero;
+
+            if(funcName.StartsWith("#")){
+                fn = GetProcAddress(mod, new IntPtr(int.Parse(funcName.Substring(1))));
+            }else{
+                fn = GetProcAddress(mod, funcName);
+            }
 
             List<string> argTypes = new List<string>();
             List<object> argValues = new List<object>();

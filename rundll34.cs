@@ -1,12 +1,12 @@
 using System;
 using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using DllCallerLib;
 
 namespace RunDLL34{
     class RunDLL34{
-        private static string shortNameToFullName(string sn){
+        private static string ShortTypeNameToFullName(string sn){
             string name = sn;
             if(name == "int") name = "System.Int32";
             else if(name == "uint") name = "System.UInt32";
@@ -32,18 +32,30 @@ namespace RunDLL34{
                 foreach(string ar in args.Skip(3)){
                     string[] spl = ar.Split(':');
 
-                    if(spl.Length < 2){
+                    IntPtr ptr = IntPtr.Zero;
+                    bool isPtr = false;
+
+                    if(ar == "null"){
+                        isPtr = true;
+                        spl = new string[]{ "System.IntPtr", "" };
+                    }else if(spl.Length < 2){
                         Console.WriteLine("Invalid format");
                         Environment.Exit(1);
                     }
 
-                    spl[0] = shortNameToFullName(spl[0]);
+                    if(spl[0] == "alloc"){
+                        spl[0] = "System.IntPtr";
+                        ptr = Marshal.AllocHGlobal(Marshal.SizeOf(Type.GetType(ShortTypeNameToFullName(spl[1]))));
+                        isPtr = true;
+                    }
+
+                    spl[0] = ShortTypeNameToFullName(spl[0]);
 
                     try{
                         funcArgs.Add(
                             new Argument(
                                 spl[0],
-                                spl[0]=="System.IntPtr"?new IntPtr(int.Parse(spl[1])):Convert.ChangeType(String.Join(":", spl.Skip(1)), Type.GetType(spl[0]))
+                                isPtr?ptr:(spl[0]=="System.IntPtr"?new IntPtr(int.Parse(spl[1])):Convert.ChangeType(String.Join(":", spl.Skip(1)), Type.GetType(spl[0])))
                             )
                         );
                     }catch(FormatException){
@@ -58,7 +70,12 @@ namespace RunDLL34{
             }
 
             try{
-                Console.WriteLine(DllCaller.CallFunction(args[0], args[1], shortNameToFullName(args[2]), funcArgs));
+                string type = args[2];
+                if(type == "void"){
+                    DllCaller.CallFunction(args[0], args[1], "System.Int32", funcArgs);
+                }else{
+                    Console.WriteLine(DllCaller.CallFunction(args[0], args[1], ShortTypeNameToFullName(type), funcArgs));
+                }
             }catch(ArgumentNullException){
                 Console.WriteLine("Invalid DLL or function name");
                 Environment.Exit(1);

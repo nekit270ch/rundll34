@@ -22,11 +22,17 @@
 - `char`: `System.Char`
 - `string`: `System.String`
 
+Также вместо типа можно указать:
+- `null`: нулевой указатель
+- `alloc:<тип>`: указатель на фрагмент памяти размером с указанный тип
+
+В качестве типа возврата также допустимо значение `void`.
+
 ## Примеры
-`rundll34 user32.dll MessageBoxA int intptr:0 string:"Hello World" string:"Dialog" int:64`  
+`rundll34 user32.dll MessageBoxA int null string:"Hello World" string:"Dialog" int:64`  
 Выводит окно сообщения с текстом "Hello World", заголовком "Dialog", кнопкой "ОК" и значком информации.  
 Подробнее: [MessageBoxA](https://learn.microsoft.com/ru-ru/windows/win32/api/winuser/nf-winuser-messageboxa)
 
-`rundll34 shell32.dll ShellAboutA int intptr:0 string:"Test" string:"Why not?"`  
+`rundll34 shell32.dll ShellAboutA void null string:"Test" string:"Why not?"`  
 Создает окно "О программе" с заголовком "Test" и текстом "Why not?".  
 Подробнее: [ShellAboutA](https://learn.microsoft.com/ru-ru/windows/win32/api/shellapi/nf-shellapi-shellabouta)
